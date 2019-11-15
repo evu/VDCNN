@@ -127,7 +127,12 @@ def train(x_train, y_train, x_test, y_test):
         epochs=FLAGS.num_epochs,
         validation_data=(x_test, y_test),
         verbose=1,
-        callbacks=[checkpointer, tensorboard, loss_history, evaluate_step],
+        callbacks=[
+            checkpointer,
+            tensorboard,
+            # loss_history,
+            evaluate_step
+        ],
     )
     print("-" * 30)
     time_str = datetime.datetime.now().isoformat()

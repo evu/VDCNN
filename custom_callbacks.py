@@ -64,7 +64,7 @@ class EvaluateStep(tf.keras.callbacks.Callback):
 
     def on_batch_end(self, batch, logs={}):
         self.step += 1
-        if self.step % self.evaluate_every == 0:
+        if (self.step % self.evaluate_every) == 0:
             logs = self.model.evaluate(
                 x=self.x_dev, y=self.y_dev, batch_size=self.batch_size, verbose=0
             )
