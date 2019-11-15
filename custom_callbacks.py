@@ -34,7 +34,15 @@ class EvaluateStep(tf.keras.callbacks.Callback):
     """Custom callback function to enable evaluation per step."""
 
     def __init__(
-        self, model, checkpointer, tensorboard, evaluate_every, batch_size, x_dev, y_dev, logdir
+        self,
+        model,
+        checkpointer,
+        tensorboard,
+        evaluate_every,
+        batch_size,
+        x_dev,
+        y_dev,
+        logdir,
     ):
         self.model = model
         self.evaluate_every = evaluate_every

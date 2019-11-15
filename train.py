@@ -13,9 +13,7 @@ from data_helper import DataHelper
 flags.DEFINE_string(
     "dataset_path", "data/ag_news_csv/", "Path for the dataset to be used."
 )
-flags.DEFINE_string(
-    "train_log_dir", "logs/", "Location to write training logs."
-)
+flags.DEFINE_string("train_log_dir", "logs/", "Location to write training logs.")
 
 # Model hyperparameters
 flags.DEFINE_integer("sequence_length", 1024, "Sequence Max Length (default: 1024)")
@@ -38,9 +36,7 @@ flags.DEFINE_boolean(
 flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 flags.DEFINE_integer("num_epochs", 100, "Number of training epochs")
 flags.DEFINE_integer(
-    "evaluate_every",
-    100,
-    "Evaluate model on validation dataset after this many steps",
+    "evaluate_every", 100, "Evaluate model on validation dataset after this many steps"
 )
 
 FLAGS = flags.FLAGS
@@ -110,7 +106,9 @@ def train(x_train, y_train, x_test, y_test):
         mode="max",
         monitor="val_acc",
     )
-    loss_history = custom_callbacks.LossHistory(model, tensorboard, logdir=FLAGS.train_log_dir)
+    loss_history = custom_callbacks.LossHistory(
+        model, tensorboard, logdir=FLAGS.train_log_dir
+    )
     evaluate_step = custom_callbacks.EvaluateStep(
         model,
         checkpointer,
