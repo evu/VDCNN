@@ -29,16 +29,16 @@ def conv_block(
     sort=True,
     stage=1,
 ):
-    conv1 = tf.keras.layers.Conv1D(
+    x = tf.keras.layers.Conv1D(
         filters=filters, kernel_size=kernel_size, strides=1, padding="same"
     )(inputs)
-    bn1 = tf.keras.layers.BatchNormalization()(conv1)
-    relu1 = tf.keras.activations.relu(bn1)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.activations.relu(x)
 
-    conv2 = tf.keras.layers.Conv1D(
+    x = tf.keras.layers.Conv1D(
         filters=filters, kernel_size=kernel_size, strides=1, padding="same"
-    )(relu1)
-    out = tf.keras.layers.BatchNormalization()(conv2)
+    )(x)
+    x = tf.keras.layers.BatchNormalization()(x)
 
     if shortcut:
         residual = tf.keras.layers.Conv1D(
@@ -47,48 +47,48 @@ def conv_block(
         residual = tf.keras.layers.BatchNormalization(
             name="shortcut_batch_normalization_%d" % stage
         )(residual)
-        out = downsample(out, pool_type=pool_type, sort=sort, stage=stage)
-        out = tf.keras.layers.Add()([out, residual])
-        out = tf.keras.activations.relu(out)
+        x = downsample(x, pool_type=pool_type, sort=sort, stage=stage)
+        x = tf.keras.layers.Add()([x, residual])
+        x = tf.keras.activations.relu(x)
     else:
-        out = tf.keras.activations.relu(out)
-        out = downsample(out, pool_type=pool_type, sort=sort, stage=stage)
+        x = tf.keras.activations.relu(x)
+        x = downsample(x, pool_type=pool_type, sort=sort, stage=stage)
     if pool_type is not None:
-        out = tf.keras.layers.Conv1D(
+        x = tf.keras.layers.Conv1D(
             filters=2 * filters,
             kernel_size=1,
             strides=1,
             padding="same",
             name="1_1_conv_%d" % stage,
-        )(out)
-        out = tf.keras.layers.BatchNormalization(
+        )(x)
+        x = tf.keras.layers.BatchNormalization(
             name="1_1_batch_normalization_%d" % stage
-        )(out)
-    return out
+        )(x)
+    return x
 
 
 def downsample(inputs, pool_type="max", sort=True, stage=1):
     if pool_type == "max":
-        out = tf.keras.layers.MaxPooling1D(
+        x = tf.keras.layers.MaxPooling1D(
             pool_size=3, strides=2, padding="same", name="pool_%d" % stage
         )(inputs)
     elif pool_type == "k_max":
         k = int(inputs._keras_shape[1] / 2)
-        out = KMaxPooling(k=k, sort=sort, name="pool_%d" % stage)(inputs)
+        x = KMaxPooling(k=k, sort=sort, name="pool_%d" % stage)(inputs)
     elif pool_type == "conv":
-        out = tf.keras.layers.Conv1D(
+        x = tf.keras.layers.Conv1D(
             filters=inputs._keras_shape[-1],
             kernel_size=3,
             strides=2,
             padding="same",
             name="pool_%d" % stage,
         )(inputs)
-        out = tf.keras.layers.BatchNormalization()(out)
+        x = tf.keras.layers.BatchNormalization()(x)
     elif pool_type is None:
-        out = inputs
+        x = inputs
     else:
         raise ValueError("unsupported pooling type!")
-    return out
+    return x
 
 
 def VDCNN(
@@ -117,17 +117,17 @@ def VDCNN(
     embedded_chars = tf.keras.layers.Embedding(
         input_dim=sequence_length, output_dim=embedding_dim
     )(inputs)
-    out = tf.keras.layers.Conv1D(
+    x = tf.keras.layers.Conv1D(
         filters=64, kernel_size=3, strides=1, padding="same", name="temp_conv"
     )(embedded_chars)
 
     # Convolutional Block 64
     for _ in range(num_conv_blocks[0] - 1):
-        out = identity_block(
-            out, filters=64, kernel_size=3, use_bias=use_bias, shortcut=shortcut
+        x = identity_block(
+            x, filters=64, kernel_size=3, use_bias=use_bias, shortcut=shortcut
         )
-    out = conv_block(
-        out,
+    x = conv_block(
+        x,
         filters=64,
         kernel_size=3,
         use_bias=use_bias,
@@ -139,11 +139,11 @@ def VDCNN(
 
     # Convolutional Block 128
     for _ in range(num_conv_blocks[1] - 1):
-        out = identity_block(
-            out, filters=128, kernel_size=3, use_bias=use_bias, shortcut=shortcut
+        x = identity_block(
+            x, filters=128, kernel_size=3, use_bias=use_bias, shortcut=shortcut
         )
-    out = conv_block(
-        out,
+    x = conv_block(
+        x,
         filters=128,
         kernel_size=3,
         use_bias=use_bias,
@@ -155,11 +155,11 @@ def VDCNN(
 
     # Convolutional Block 256
     for _ in range(num_conv_blocks[2] - 1):
-        out = identity_block(
-            out, filters=256, kernel_size=3, use_bias=use_bias, shortcut=shortcut
+        x = identity_block(
+            x, filters=256, kernel_size=3, use_bias=use_bias, shortcut=shortcut
         )
-    out = conv_block(
-        out,
+    x = conv_block(
+        x,
         filters=256,
         kernel_size=3,
         use_bias=use_bias,
@@ -171,11 +171,11 @@ def VDCNN(
 
     # Convolutional Block 512
     for _ in range(num_conv_blocks[3] - 1):
-        out = identity_block(
-            out, filters=512, kernel_size=3, use_bias=use_bias, shortcut=shortcut
+        x = identity_block(
+            x, filters=512, kernel_size=3, use_bias=use_bias, shortcut=shortcut
         )
-    out = conv_block(
-        out,
+    x = conv_block(
+        x,
         filters=512,
         kernel_size=3,
         use_bias=use_bias,
@@ -185,13 +185,13 @@ def VDCNN(
     )
 
     # k-max pooling with k = 8
-    out = KMaxPooling(k=8, sort=True)(out)
-    out = tf.keras.layers.Flatten()(out)
+    x = KMaxPooling(k=8, sort=True)(x)
+    x = tf.keras.layers.Flatten()(x)
 
     # Dense Layers
-    out = tf.keras.layers.Dense(2048, activation="relu")(out)
-    out = tf.keras.layers.Dense(2048, activation="relu")(out)
-    out = tf.keras.layers.Dense(num_classes, activation="softmax")(out)
+    x = tf.keras.layers.Dense(2048, activation="relu")(x)
+    x = tf.keras.layers.Dense(2048, activation="relu")(x)
+    x = tf.keras.layers.Dense(num_classes, activation="softmax")(x)
 
     if input_tensor is not None:
         inputs = tf.keras.get_source_inputs(input_tensor)
@@ -199,7 +199,7 @@ def VDCNN(
         inputs = inputs
 
     # Create model.
-    model = tf.keras.Model(inputs=inputs, outputs=out, name="VDCNN")
+    model = tf.keras.Model(inputs=inputs, outputs=x, name="VDCNN")
     return model
 
 
