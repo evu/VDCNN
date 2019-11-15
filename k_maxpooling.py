@@ -1,11 +1,9 @@
+"""Keras layer to extract k highest activations from a sequence."""
 import tensorflow as tf
 
 
 class KMaxPooling(tf.keras.layers.Layer):
-    """
-    K-max pooling layer that extracts the k-highest activations from a sequence (2nd dimension).
-    TensorFlow backend.
-    """
+    """K-max pooling layer that extracts the k-highest activations from a sequence (2nd dimension)."""
 
     def __init__(self, k=1, sort=True, **kwargs):
         super().__init__(**kwargs)

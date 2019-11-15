@@ -1,21 +1,22 @@
+"""Very Deep CNN model. https://arxiv.org/abs/1606.01781"""
 import tensorflow as tf
 
 from k_maxpooling import KMaxPooling
 
 
 def identity_block(inputs, filters, kernel_size=3, use_bias=False, shortcut=False):
-    conv1 = tf.keras.layers.Conv1D(
+    x = tf.keras.layers.Conv1D(
         filters=filters, kernel_size=kernel_size, strides=1, padding="same"
     )(inputs)
-    bn1 = tf.keras.layers.BatchNormalization()(conv1)
-    relu = tf.keras.activations.relu(bn1)
-    conv2 = tf.keras.layers.Conv1D(
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.activations.relu(x)
+    x = tf.keras.layers.Conv1D(
         filters=filters, kernel_size=kernel_size, strides=1, padding="same"
-    )(relu)
-    out = tf.keras.layers.BatchNormalization()(conv2)
+    )(x)
+    x = tf.keras.layers.BatchNormalization()(x)
     if shortcut:
-        out = tf.keras.layers.Add()([out, inputs])
-    return tf.keras.activations.relu(out)
+        x = tf.keras.layers.Add()([x, inputs])
+    return tf.keras.activations.relu(x)
 
 
 def conv_block(
@@ -202,6 +203,10 @@ def VDCNN(
     return model
 
 
-if __name__ == "__main__":
+def main():
     model = VDCNN(10, depth=9, shortcut=False, pool_type="max")
     model.summary()
+
+
+if __name__ == "__main__":
+    main()

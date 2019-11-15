@@ -1,6 +1,4 @@
-"""
-data helper to preprocess csv format text dataset
-"""
+"""Preprocess csv-formatted text dataset."""
 import csv
 
 import numpy as np
@@ -29,9 +27,7 @@ class DataHelper:
         return data
 
     def load_csv_file(self, filename, num_classes):
-        """
-        Load CSV file, generate one-hot labels and process text data as Paper did.
-        """
+        """Load CSV file, generate one-hot labels and process text data as Paper did."""
         all_data = []
         labels = []
         with open(filename) as f:
@@ -64,9 +60,7 @@ class DataHelper:
 
     @staticmethod
     def batch_iter(data, batch_size, num_epochs, shuffle=True):
-        """
-        Generates a batch iterator for a dataset.
-        """
+        """Generates a batch iterator for a dataset."""
         data = np.array(data)
         data_size = len(data)
         num_batches_per_epoch = int((len(data) - 1) / batch_size) + 1

@@ -1,6 +1,4 @@
-"""
-Training Script for VDCNN Text
-"""
+"""Train a VDCNN on text data."""
 import sys
 import datetime
 
@@ -11,13 +9,12 @@ import custom_callbacks
 from vdcnn import VDCNN
 from data_helper import DataHelper
 
-# Parameters settings
-# Data loading params
+# Dataset
 flags.DEFINE_string(
-    "database_path", "data/ag_news_csv/", "Path for the dataset to be used."
+    "dataset_path", "data/ag_news_csv/", "Path for the dataset to be used."
 )
 
-# Model Hyperparameters
+# Model hyperparameters
 flags.DEFINE_integer("sequence_length", 1024, "Sequence Max Length (default: 1024)")
 flags.DEFINE_string(
     "pool_type",
@@ -55,14 +52,14 @@ data_helper = DataHelper(sequence_max_length=FLAGS.sequence_length)
 
 
 def preprocess():
-    # Data Preparation
-
     # Load data
     print("Loading data...")
     train_data, train_label, test_data, test_label = data_helper.load_dataset(
-        FLAGS.database_path
+        FLAGS.dataset_path
     )
     print("Loading data succees...")
+
+    # Preprocessing steps can go here
 
     return train_data, train_label, test_data, test_label
 
@@ -85,6 +82,14 @@ def train(x_train, y_train, x_test, y_test):
         metrics=["acc"],
     )
 
+    # Save model architecture
+    model_json = model.to_json()
+    with open("vdcnn_model.json", "w") as json_file:
+        json_file.write(model_json)
+    time_str = datetime.datetime.now().isoformat()
+    print("{}: Model saved as json.".format(time_str))
+    print("")
+
     # Trainer
     # Tensorboard and extra callback to support steps history
     tensorboard = tf.keras.callbacks.TensorBoard(
@@ -95,8 +100,7 @@ def train(x_train, y_train, x_test, y_test):
         write_images=True,
     )
     checkpointer = tf.keras.callbacks.ModelCheckpoint(
-        # filepath="./checkpoints/vdcnn_weights_val_acc_{val_acc:.4f}.h5",
-        filepath="./checkpoints/vdcnn_weights.h5",
+        filepath="./checkpoints/vdcnn_weights_val_acc_{val_acc:.4f}.h5",
         period=1,
         verbose=1,
         save_best_only=True,
@@ -127,13 +131,6 @@ def train(x_train, y_train, x_test, y_test):
     print("-" * 30)
     time_str = datetime.datetime.now().isoformat()
     print("{}: Done training.".format(time_str))
-
-    model_json = model.to_json()
-    with open("vdcnn_model.json", "w") as json_file:
-        json_file.write(model_json)  # Save model architecture
-    time_str = datetime.datetime.now().isoformat()
-    print("{}: Model saved as json.".format(time_str))
-    print("")
 
     tf.keras.backend.clear_session()
     print("-" * 30)

@@ -1,15 +1,11 @@
-"""
-Some custom callback function to strengthen up training code and tensorboard
-"""
+"""Custom callbacks for checkpointing and tensorboard metrics."""
 import datetime
 
 import tensorflow as tf
 
 
 class LossHistory(tf.keras.callbacks.Callback):
-    """
-    Record loss history by step in Tensorboard
-    """
+    """Record loss history by step in Tensorboard."""
 
     def __init__(self, model, tensorboard, names=None):
         self.model = model
@@ -34,9 +30,7 @@ class LossHistory(tf.keras.callbacks.Callback):
 
 
 class EvaluateStep(tf.keras.callbacks.Callback):
-    """
-    Custom callback function to enable evaluation per step
-    """
+    """Custom callback function to enable evaluation per step."""
 
     def __init__(
         self, model, checkpointer, tensorboard, evaluate_every, batch_size, x_dev, y_dev
