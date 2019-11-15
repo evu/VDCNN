@@ -7,7 +7,7 @@ import tensorflow as tf
 class LossHistory(tf.keras.callbacks.Callback):
     """Record loss history by step in Tensorboard."""
 
-    def __init__(self, model, tensorboard, names=None):
+    def __init__(self, model, tensorboard, logdir, names=None):
         self.model = model
         self.tensorboard = tensorboard
         if names is None:
@@ -15,6 +15,7 @@ class LossHistory(tf.keras.callbacks.Callback):
         else:
             self.names = names
         self.step = 0
+        self.logdir = logdir
 
     def on_train_begin(self, logs={}):
         self.step = 0
@@ -22,7 +23,7 @@ class LossHistory(tf.keras.callbacks.Callback):
     def on_batch_end(self, batch, logs={}):
         self.step += 1
         for name in self.names:
-            writer = tf.summary.create_file_writer("/tmp/mylogs")
+            writer = tf.summary.create_file_writer(self.logdir)
             with writer.as_default():
                 tag = name + "_step"
                 tf.summary.scalar(tag, logs[name], step=self.step)
@@ -33,7 +34,7 @@ class EvaluateStep(tf.keras.callbacks.Callback):
     """Custom callback function to enable evaluation per step."""
 
     def __init__(
-        self, model, checkpointer, tensorboard, evaluate_every, batch_size, x_dev, y_dev
+        self, model, checkpointer, tensorboard, evaluate_every, batch_size, x_dev, y_dev, logdir
     ):
         self.model = model
         self.evaluate_every = evaluate_every
@@ -45,6 +46,7 @@ class EvaluateStep(tf.keras.callbacks.Callback):
         self.max_step = 0
         self.step = 0
         self.epoch = 0
+        self.logdir = logdir
 
     def on_train_begin(self, logs={}):
         self.step = 0
@@ -79,7 +81,7 @@ class EvaluateStep(tf.keras.callbacks.Callback):
             if self.tensorboard is not None:
                 names = ["val_loss_step", "val_acc_step"]
                 for idx, val in enumerate(names):
-                    writer = tf.summary.create_file_writer("/tmp/mylogs")
+                    writer = tf.summary.create_file_writer(self.logdir)
                     with writer.as_default():
                         tf.summary.scalar(val, logs[idx], step=self.step)
                         writer.flush()
