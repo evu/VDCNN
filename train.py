@@ -94,13 +94,12 @@ def train(x_train, y_train, x_test, y_test):
     tensorboard = tf.keras.callbacks.TensorBoard(
         log_dir=FLAGS.train_log_dir,
         histogram_freq=50,
-        batch_size=FLAGS.batch_size,
         write_graph=True,
         write_images=True,
     )
     checkpointer = tf.keras.callbacks.ModelCheckpoint(
         filepath="./checkpoints/vdcnn_weights_val_acc_{val_acc:.4f}.h5",
-        period=1,
+        save_freq="epoch",
         verbose=1,
         save_best_only=True,
         mode="max",
