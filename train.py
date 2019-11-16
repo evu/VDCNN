@@ -1,6 +1,7 @@
 """Train a VDCNN on text data."""
-import sys
 import datetime
+import sys
+import pathlib
 
 import tensorflow as tf
 from absl import flags
@@ -36,7 +37,7 @@ flags.DEFINE_boolean(
 flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 flags.DEFINE_integer("num_epochs", 100, "Number of training epochs")
 flags.DEFINE_integer(
-    "evaluate_every", 100, "Evaluate model on validation dataset after this many steps"
+    "evaluate_every", 500, "Evaluate model on validation dataset after this many steps"
 )
 
 FLAGS = flags.FLAGS
@@ -64,6 +65,10 @@ def preprocess():
 
 
 def train(x_train, y_train, x_test, y_test):
+
+    session_ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    log_dir = str(pathlib.Path(FLAGS.train_log_dir / session_ts))
+
     # Init Keras Model here
     model = VDCNN(
         num_classes=y_train.shape[1],
@@ -92,7 +97,7 @@ def train(x_train, y_train, x_test, y_test):
     # Trainer
     # Tensorboard and extra callback to support steps history
     tensorboard = tf.keras.callbacks.TensorBoard(
-        log_dir=FLAGS.train_log_dir,
+        log_dir=log_dir,
         histogram_freq=50,
         write_graph=True,
         write_images=True,
@@ -106,7 +111,7 @@ def train(x_train, y_train, x_test, y_test):
         monitor="val_acc",
     )
     loss_history = custom_callbacks.LossHistory(
-        model, tensorboard, logdir=FLAGS.train_log_dir
+        model, tensorboard, logdir=log_dir
     )
     evaluate_step = custom_callbacks.EvaluateStep(
         model,
