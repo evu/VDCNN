@@ -67,7 +67,7 @@ def preprocess():
 def train(x_train, y_train, x_test, y_test):
 
     session_ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    log_dir = str(pathlib.Path(FLAGS.train_log_dir / session_ts))
+    log_dir = str(pathlib.Path(FLAGS.train_log_dir) / session_ts)
 
     # Init Keras Model here
     model = VDCNN(

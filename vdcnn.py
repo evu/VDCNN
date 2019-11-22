@@ -100,6 +100,7 @@ def VDCNN(
     pool_type="max",
     sort=True,
     use_bias=False,
+    embedding_input=False,
     input_tensor=None,
 ):
     if depth == 9:
@@ -113,10 +114,15 @@ def VDCNN(
     else:
         raise ValueError("unsupported depth for VDCNN.")
 
-    inputs = tf.keras.Input(shape=(sequence_length,), name="inputs")
-    embedded_chars = tf.keras.layers.Embedding(
-        input_dim=sequence_length, output_dim=embedding_dim
-    )(inputs)
+    if embedding_input:
+        # Input is a n x m matrix of n ordered m-dimenstional vector embeddings
+        embedded_chars = tf.keras.Input(shape=(sequence_length, embedding_dim), name="inputs")
+    else:
+        # Input is raw text
+        inputs = tf.keras.Input(shape=(sequence_length,), name="inputs")
+        embedded_chars = tf.keras.layers.Embedding(
+            input_dim=sequence_length, output_dim=embedding_dim
+        )(inputs)
     x = tf.keras.layers.Conv1D(
         filters=64, kernel_size=3, strides=1, padding="same", name="temp_conv"
     )(embedded_chars)
