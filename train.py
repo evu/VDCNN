@@ -39,6 +39,7 @@ flags.DEFINE_integer("num_epochs", 100, "Number of training epochs")
 flags.DEFINE_integer(
     "evaluate_every", 500, "Evaluate model on validation dataset after this many steps"
 )
+flags.DEFINE_float("lr", 0.001, "Learning rate")
 
 FLAGS = flags.FLAGS
 FLAGS(sys.argv)
@@ -81,7 +82,7 @@ def train(x_train, y_train, x_test, y_test):
     )
 
     model.compile(
-        optimizer=tf.keras.optimizers.SGD(lr=0.01, momentum=0.9),
+        optimizer=tf.keras.optimizers.SGD(lr=FLAGS.lr, momentum=0.9),
         loss="categorical_crossentropy",
         metrics=["acc"],
     )
