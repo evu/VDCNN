@@ -73,7 +73,7 @@ def convert():
     print("Saving train dataset complete.")
 
     # Save test.h5
-    print("Saving test dataset to '{}'...".format(train_h5_file))
+    print("Saving test dataset to '{}'...".format(test_h5_file))
     h5f = h5py.File(test_h5_file, "w")
     h5f.create_dataset("ag_news_test_x", data=test_embed)
     h5f.create_dataset("ag_news_test_y", data=test_label)
