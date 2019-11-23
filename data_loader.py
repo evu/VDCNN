@@ -1,10 +1,11 @@
 """Preprocess csv-formatted text dataset."""
 import csv
 
+import h5py
 import numpy as np
 
 
-class DataHelper:
+class DatasetLoader:
     def __init__(self, sequence_max_length=1024):
         self.alphabet = (
             'abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:’"/|_#$%ˆ&*˜‘+=<>()[]{} '
@@ -26,6 +27,19 @@ class DataHelper:
                 data[i] = 68
         return data
 
+    @staticmethod
+    def load_h5_dataset(dataset_path):
+        h5f = h5py.File(dataset_path + "train.h5", "r")
+        train_data = h5f["train_x"][:]
+        train_label = h5f["train_y"][:]
+        h5f.close()
+
+        h5f = h5py.File(dataset_path + "test.h5", "r")
+        test_data = h5f["test_x"][:]
+        test_label = h5f["test_y"][:]
+        h5f.close()
+        return train_data, train_label, test_data, test_label
+
     def load_csv_file(self, filename, num_classes):
         """Load CSV file, generate one-hot labels and process text data as Paper did."""
         all_data = []
@@ -42,7 +56,7 @@ class DataHelper:
                 all_data.append(self.char2vec(text))
         return np.array(all_data), np.array(labels)
 
-    def load_dataset(self, dataset_path):
+    def load_dataset(self, dataset_path, h5=False):
         # Read Classes Info
         with open(dataset_path + "classes.txt") as f:
             classes = []
@@ -50,12 +64,17 @@ class DataHelper:
                 classes.append(line.strip())
         num_classes = len(classes)
         # Read CSV Info
-        train_data, train_label = self.load_csv_file(
-            dataset_path + "train.csv", num_classes
-        )
-        test_data, test_label = self.load_csv_file(
-            dataset_path + "test.csv", num_classes
-        )
+        if h5:
+            train_data, train_label, test_data, test_label = self.load_h5_dataset(
+                dataset_path
+            )
+        else:
+            train_data, train_label = self.load_csv_file(
+                dataset_path + "train.csv", num_classes
+            )
+            test_data, test_label = self.load_csv_file(
+                dataset_path + "test.csv", num_classes
+            )
         return train_data, train_label, test_data, test_label
 
     @staticmethod

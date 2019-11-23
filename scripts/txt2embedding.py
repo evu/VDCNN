@@ -67,16 +67,16 @@ def convert():
     # Save train.h5
     print("Saving train dataset to '{}'...".format(train_h5_file))
     h5f = h5py.File(train_h5_file, "w")
-    h5f.create_dataset("ag_news_train_x", data=train_embed)
-    h5f.create_dataset("ag_news_train_y", data=train_label)
+    h5f.create_dataset("train_x", data=train_embed)
+    h5f.create_dataset("train_y", data=train_label)
     h5f.close()
     print("Saving train dataset complete.")
 
     # Save test.h5
     print("Saving test dataset to '{}'...".format(test_h5_file))
     h5f = h5py.File(test_h5_file, "w")
-    h5f.create_dataset("ag_news_test_x", data=test_embed)
-    h5f.create_dataset("ag_news_test_y", data=test_label)
+    h5f.create_dataset("test_x", data=test_embed)
+    h5f.create_dataset("test_y", data=test_label)
     h5f.close()
     print("Saving test dataset complete.")
     print()
