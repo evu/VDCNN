@@ -31,6 +31,10 @@ Downloads of those NLP text classification datasets can be found here (Many than
 | Amazon Review Full     |    5    |   3 000 000   |    650 000   |[link](https://drive.google.com/drive/u/0/folders/0Bz8a_Dbh9Qhbfll6bVpmNUtUcFdjYmF2SEpmZUZUcVNiMUw1TWN6RDV3a0JHT3kxLVhVR2M)|
 | Amazon Review Polarity |    2    |   3 600 000   |    400 000   |[link](https://drive.google.com/drive/u/0/folders/0Bz8a_Dbh9Qhbfll6bVpmNUtUcFdjYmF2SEpmZUZUcVNiMUw1TWN6RDV3a0JHT3kxLVhVR2M)|
 
+A script to generate GloVe vector embeddings from the *AG's News* dataset is located at [`scripts/txt2embedding.py`](scripts/txt2embedding.py). It has its own dependencies that are independent of the main project, located in the `script_requirements.txt` file in the same folder.
+
+Usage: 
+
 ## Hardware ##
 
 Training and testing were performed on an Ubuntu 16.04 server with an NVIDIA Quadro GP100, using the configuration defaults defined in [`train.py`](train.py). The dataset used was the AG's News dataset.
