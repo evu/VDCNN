@@ -8,7 +8,7 @@ from absl import flags
 
 import custom_callbacks
 from vdcnn import VDCNN
-from data_helper import DataHelper
+from data_loader import DatasetLoader
 
 # Dataset
 flags.DEFINE_string(
@@ -49,13 +49,13 @@ for attr, value in sorted(FLAGS.__flags.items()):
     print("{}={}".format(attr, value.value))
 print("")
 
-data_helper = DataHelper(sequence_max_length=FLAGS.sequence_length)
+loader = DatasetLoader(sequence_max_length=FLAGS.sequence_length)
 
 
 def preprocess():
     # Load data
     print("Loading data...")
-    train_data, train_label, test_data, test_label = data_helper.load_dataset(
+    train_data, train_label, test_data, test_label = loader.load_dataset(
         FLAGS.dataset_path
     )
     print("Loading data succees...")
@@ -67,7 +67,7 @@ def preprocess():
 
 def train(x_train, y_train, x_test, y_test):
 
-    session_ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    session_ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     log_dir = str(pathlib.Path(FLAGS.train_log_dir) / session_ts)
 
     # Init Keras Model here
@@ -98,10 +98,7 @@ def train(x_train, y_train, x_test, y_test):
     # Trainer
     # Tensorboard and extra callback to support steps history
     tensorboard = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir,
-        histogram_freq=50,
-        write_graph=True,
-        write_images=True,
+        log_dir=log_dir, histogram_freq=50, write_graph=True, write_images=True
     )
     checkpointer = tf.keras.callbacks.ModelCheckpoint(
         filepath="./checkpoints/vdcnn_weights_val_acc_{val_acc:.4f}.h5",
@@ -111,9 +108,7 @@ def train(x_train, y_train, x_test, y_test):
         mode="max",
         monitor="val_acc",
     )
-    loss_history = custom_callbacks.LossHistory(
-        model, tensorboard, logdir=log_dir
-    )
+    loss_history = custom_callbacks.LossHistory(model, tensorboard, logdir=log_dir)
     evaluate_step = custom_callbacks.EvaluateStep(
         model,
         checkpointer,
@@ -137,7 +132,7 @@ def train(x_train, y_train, x_test, y_test):
             checkpointer,
             tensorboard,
             # loss_history,
-            evaluate_step
+            evaluate_step,
         ],
     )
     print("-" * 30)

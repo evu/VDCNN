@@ -16,7 +16,7 @@ It should be noted that the original implementation by the authors of the VDCNN 
 
 ## Datasets ##
 
-The original paper tests several NLP datasets, including DBPedia, AG's News, Sogou News, etc. [`data_helper.py`](data_helper.py) expects CSV-formatted train and test files.
+The original paper tests several NLP datasets, including DBPedia, AG's News, Sogou News, etc. [`data_loader.py`](data_loader.py) expects CSV-formatted train and test files.
 
 Downloads of those NLP text classification datasets can be found here (Many thanks to ArdalanM):
 

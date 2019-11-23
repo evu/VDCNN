@@ -116,7 +116,9 @@ def VDCNN(
 
     if embedding_input:
         # Input is a n x m matrix of n ordered m-dimenstional vector embeddings
-        embedded_chars = tf.keras.Input(shape=(sequence_length, embedding_dim), name="inputs")
+        embedded_chars = tf.keras.Input(
+            shape=(sequence_length, embedding_dim), name="inputs"
+        )
     else:
         # Input is raw text
         inputs = tf.keras.Input(shape=(sequence_length,), name="inputs")
