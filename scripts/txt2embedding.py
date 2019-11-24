@@ -15,8 +15,11 @@ TEST_CSV = DATASET_PATH / "test.csv"
 def text2embed(df, model):
     # In the AG news dataset, no title is longer than 20 words
     # Embedding dataset is thus [n_samples, n_words, embedding_dim]
+    classes = sorted(df["class"].unique())
+    print("Found {} classes: {}".format(len(classes), classes))
+
     embed = np.zeros([len(df), 20, 300])
-    labels = np.zeros([len(df)])
+    labels = np.zeros([len(df), len(classes)])
     print("Converting {} rows to embeddings...".format(len(df)))
     for ridx, row in df.iterrows():
         if ridx % 5000 == 0:
@@ -26,7 +29,8 @@ def text2embed(df, model):
         for widx, word in enumerate(title.split()):
             vec = model(word).vector.tolist()
             embed[ridx, widx] = vec
-        labels[ridx] = label
+        # One-hot encoding of class
+        labels[ridx, classes.index(label)] = 1
     return embed, labels
 
 
