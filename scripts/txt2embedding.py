@@ -48,7 +48,7 @@ def convert():
     print("Reading test dataset from csv...")
     test = pd.read_csv(TEST_CSV, names=["class", "title", "description"])
 
-    print("Converting text in train dataset to arrays of word vector embeddedings...")
+    print("Converting text in train dataset to arrays of word vector embeddings...")
     print("-- NOTE: THIS MAY TAKE A LONG TIME.")
     train_embed, train_label = text2embed(train, model=nlp)
     print("Text to embeddings conversion of train dataset is complete.")
