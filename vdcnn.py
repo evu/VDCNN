@@ -116,9 +116,10 @@ def VDCNN(
 
     if embedding_input:
         # Input is a n x m matrix of n ordered m-dimenstional vector embeddings
-        embedded_chars = tf.keras.Input(
+        inputs = tf.keras.Input(
             shape=(sequence_length, embedding_dim), name="inputs"
         )
+        embedded_chars = inputs
     else:
         # Input is raw text
         inputs = tf.keras.Input(shape=(sequence_length,), name="inputs")
@@ -193,7 +194,8 @@ def VDCNN(
     )
 
     # k-max pooling with k = 8
-    x = KMaxPooling(k=8, sort=True)(x)
+    k = min(x.shape[1], 8)
+    x = KMaxPooling(k=k, sort=True)(x)
     x = tf.keras.layers.Flatten()(x)
 
     # Dense Layers
