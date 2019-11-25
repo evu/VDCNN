@@ -11,22 +11,26 @@ DATASET_PATH = pathlib.Path("../data/ag_news_csv")
 TRAIN_CSV = DATASET_PATH / "train.csv"
 TEST_CSV = DATASET_PATH / "test.csv"
 
+# In the AG news dataset, no article content is longer than 173 words
+MAX_WORD_LEN = 175
+# Dimension of GloVe word vectors is 300
+EMBEDDING_DIM = 300
+
 
 def text2embed(df, model):
-    # In the AG news dataset, no title is longer than 20 words
-    # Embedding dataset is thus [n_samples, n_words, embedding_dim]
+    # Embedding dataset is [n_samples, n_words, embedding_dim]
     classes = sorted(df["class"].unique())
     print("Found {} classes: {}".format(len(classes), classes))
 
-    embed = np.zeros([len(df), 20, 300])
+    embed = np.zeros([len(df), MAX_WORD_LEN, EMBEDDING_DIM])
     labels = np.zeros([len(df), len(classes)])
     print("Converting {} rows to embeddings...".format(len(df)))
     for ridx, row in df.iterrows():
         if ridx % 5000 == 0:
             print("processed {} / {}...".format(ridx, len(df)))
-        title = row["title"]
+        text = row["content"]
         label = row["class"]
-        for widx, word in enumerate(title.split()):
+        for widx, word in enumerate(text.split()):
             vec = model(word).vector.tolist()
             embed[ridx, widx] = vec
         # One-hot encoding of class
@@ -44,9 +48,9 @@ def convert():
     print("Spacy model loaded.")
 
     print("Reading train dataset from csv...")
-    train = pd.read_csv(TRAIN_CSV, names=["class", "title", "description"])
+    train = pd.read_csv(TRAIN_CSV, names=["class", "title", "content"])
     print("Reading test dataset from csv...")
-    test = pd.read_csv(TEST_CSV, names=["class", "title", "description"])
+    test = pd.read_csv(TEST_CSV, names=["class", "title", "content"])
 
     print("Converting text in train dataset to arrays of word vector embeddings...")
     print("-- NOTE: THIS MAY TAKE A LONG TIME.")
