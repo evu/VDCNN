@@ -14,6 +14,9 @@ from data_loader import DatasetLoader
 flags.DEFINE_string(
     "dataset_path", "data/ag_news_csv/", "Path for the dataset to be used."
 )
+flags.DEFINE_enum(
+    "dataset_type", "text", ["text", "embeddings"], "Type of data in dataset."
+)
 flags.DEFINE_string("train_log_dir", "logs/", "Location to write training logs.")
 
 # Model hyperparameters
@@ -56,7 +59,7 @@ def preprocess():
     # Load data
     print("Loading data...")
     train_data, train_label, test_data, test_label = loader.load_dataset(
-        FLAGS.dataset_path
+        dataset_path=FLAGS.dataset_path, dataset_type=FLAGS.dataset_type
     )
     print("Loading data succees...")
 
@@ -70,7 +73,14 @@ def train(x_train, y_train, x_test, y_test):
     session_ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     log_dir = str(pathlib.Path(FLAGS.train_log_dir) / session_ts)
 
-    # Init Keras Model here
+    if FLAGS.dataset_type == "embeddings":
+        embedding_input = True
+        embedding_dim = x_train.shape[-1]
+    else:
+        embedding_input = False
+        embedding_dim = 16
+
+    # Build model
     model = VDCNN(
         num_classes=y_train.shape[1],
         depth=FLAGS.depth,
@@ -79,6 +89,8 @@ def train(x_train, y_train, x_test, y_test):
         pool_type=FLAGS.pool_type,
         sort=FLAGS.sort,
         use_bias=FLAGS.use_bias,
+        embedding_input=embedding_input,
+        embedding_dim=embedding_dim,
     )
 
     model.compile(
@@ -117,7 +129,7 @@ def train(x_train, y_train, x_test, y_test):
         FLAGS.batch_size,
         x_test,
         y_test,
-        FLAGS.train_log_dir,
+        log_dir,
     )
 
     # Fit model
