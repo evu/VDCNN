@@ -56,25 +56,28 @@ class DatasetLoader:
                 all_data.append(self.char2vec(text))
         return np.array(all_data), np.array(labels)
 
-    def load_dataset(self, dataset_path, h5=False):
+    def load_dataset(self, dataset_path, dataset_type="text"):
         # Read Classes Info
         with open(dataset_path + "classes.txt") as f:
             classes = []
             for line in f:
                 classes.append(line.strip())
         num_classes = len(classes)
-        # Read CSV Info
-        if h5:
+
+        if dataset_type == "embeddings":
             train_data, train_label, test_data, test_label = self.load_h5_dataset(
                 dataset_path
             )
-        else:
+        elif dataset_type == "text":
             train_data, train_label = self.load_csv_file(
                 dataset_path + "train.csv", num_classes
             )
             test_data, test_label = self.load_csv_file(
                 dataset_path + "test.csv", num_classes
             )
+        else:
+            raise Exception("Dataset type '{}' is unknown.".format(dataset_type))
+
         return train_data, train_label, test_data, test_label
 
     @staticmethod
