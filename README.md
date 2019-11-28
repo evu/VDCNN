@@ -31,9 +31,17 @@ Downloads of those NLP text classification datasets can be found here (Many than
 | Amazon Review Full     |    5    |   3 000 000   |    650 000   |[link](https://drive.google.com/drive/u/0/folders/0Bz8a_Dbh9Qhbfll6bVpmNUtUcFdjYmF2SEpmZUZUcVNiMUw1TWN6RDV3a0JHT3kxLVhVR2M)|
 | Amazon Review Polarity |    2    |   3 600 000   |    400 000   |[link](https://drive.google.com/drive/u/0/folders/0Bz8a_Dbh9Qhbfll6bVpmNUtUcFdjYmF2SEpmZUZUcVNiMUw1TWN6RDV3a0JHT3kxLVhVR2M)|
 
-A script to generate GloVe vector embeddings from the *AG's News* dataset is located at [`scripts/txt2embedding.py`](scripts/txt2embedding.py). It has its own dependencies that are independent of the main project, located in the `script_requirements.txt` file in the same folder.
+A script to generate GloVe vector embeddings from the CSV datasets is located at [`scripts/txt2embedding.py`](scripts/txt2embedding.py). It has its own dependencies that are independent of the main project, located in the `script_requirements.txt` file in the same folder.
 
-Usage: 
+**Usage:**
+
+```
+$ python txt2embedding.py \
+    --dataset_path="../data/dbpedia_csv" \
+    --max_len=100 \
+    --embedding_dim=300 \ 
+    --max_samples=1000
+```
 
 ## Hardware ##
 

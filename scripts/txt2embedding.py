@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+import argparse
 import pathlib
 
 import h5py
@@ -7,22 +8,23 @@ import numpy as np
 import pandas as pd
 import spacy
 
-DATASET_PATH = pathlib.Path("../data/ag_news_csv")
+DATASET_PATH = pathlib.Path("../data/dbpedia_csv")
 TRAIN_CSV = DATASET_PATH / "train.csv"
 TEST_CSV = DATASET_PATH / "test.csv"
 
 # In the AG news dataset, no article content is longer than 173 words
-MAX_WORD_LEN = 175
+MAX_WORD_LEN = 100
 # Dimension of GloVe word vectors is 300
 EMBEDDING_DIM = 300
+MAX_DATASET_SIZE = 100000
 
 
-def text2embed(df, model):
+def text2embed(df, model, max_len, embed_dim):
     # Embedding dataset is [n_samples, n_words, embedding_dim]
     classes = sorted(df["class"].unique())
     print("Found {} classes: {}".format(len(classes), classes))
 
-    embed = np.zeros([len(df), MAX_WORD_LEN, EMBEDDING_DIM])
+    embed = np.zeros([len(df), max_len, embed_dim])
     labels = np.zeros([len(df), len(classes)])
     print("Converting {} rows to embeddings...".format(len(df)))
     for ridx, row in df.iterrows():
@@ -31,6 +33,8 @@ def text2embed(df, model):
         text = row["content"]
         label = row["class"]
         for widx, word in enumerate(text.split()):
+            if widx >= max_len:
+                break
             vec = model(word).vector.tolist()
             embed[ridx, widx] = vec
         # One-hot encoding of class
@@ -38,7 +42,12 @@ def text2embed(df, model):
     return embed, labels
 
 
-def convert():
+def convert(args):
+    train_csv = pathlib.Path(args.dataset_path) / "train.csv"
+    test_csv = pathlib.Path(args.dataset_path) / "test.csv"
+
+    print("Converting dataset in '{}'".format(str(args.dataset_path)))
+
     train_h5_file = "train.h5"
     test_h5_file = "test.h5"
     spacy_model = "en_core_web_lg"
@@ -48,13 +57,25 @@ def convert():
     print("Spacy model loaded.")
 
     print("Reading train dataset from csv...")
-    train = pd.read_csv(TRAIN_CSV, names=["class", "title", "content"])
+    train = pd.read_csv(train_csv, names=["class", "title", "content"])
     print("Reading test dataset from csv...")
-    test = pd.read_csv(TEST_CSV, names=["class", "title", "content"])
+    test = pd.read_csv(test_csv, names=["class", "title", "content"])
+
+    if args.max_samples is None:
+        args.max_samples = max([len(train), len(test)])
+
+    if args.shuffle:
+        train = train.sample(frac=1).reset_index(drop=True)
+        test = test.sample(frac=1).reset_index(drop=True)
 
     print("Converting text in train dataset to arrays of word vector embeddings...")
     print("-- NOTE: THIS MAY TAKE A LONG TIME.")
-    train_embed, train_label = text2embed(train, model=nlp)
+    train_embed, train_label = text2embed(
+        train[: args.max_samples],
+        model=nlp,
+        max_len=args.max_len,
+        embed_dim=args.embedding_dim,
+    )
     print("Text to embeddings conversion of train dataset is complete.")
     print(
         "Converted train dataset shape: {} (labels: {})".format(
@@ -64,7 +85,12 @@ def convert():
 
     print("Converting text in test dataset to arrays of word vector embeddedings...")
     print("-- NOTE: THIS MAY TAKE A LONG TIME.")
-    test_embed, test_label = text2embed(test, model=nlp)
+    test_embed, test_label = text2embed(
+        test[: args.max_samples],
+        model=nlp,
+        max_len=args.max_len,
+        embed_dim=args.embedding_dim,
+    )
     print("Text to embeddings conversion of test dataset is complete.")
     print(
         "Converted test dataset shape: {} (labels: {})".format(
@@ -92,8 +118,25 @@ def convert():
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--shuffle", default=False, action="store_true")
+    parser.add_argument("--dataset_path", required=True, help="Path to csv dataset")
+    parser.add_argument(
+        "--max_len",
+        type=int,
+        default=100,
+        help="Maximum word length for documents (everything after is truncated)",
+    )
+    parser.add_argument(
+        "--embedding_dim", type=int, default=300, help="Embedding dimensionality"
+    )
+    parser.add_argument(
+        "--max_samples", type=int, help="Maximum number of samples in dataset"
+    )
+    args = parser.parse_args()
+
     print("Beginning conversion...")
-    convert()
+    convert(args)
     print("Exiting.")
 
 
