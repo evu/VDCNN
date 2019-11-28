@@ -8,16 +8,6 @@ import numpy as np
 import pandas as pd
 import spacy
 
-DATASET_PATH = pathlib.Path("../data/dbpedia_csv")
-TRAIN_CSV = DATASET_PATH / "train.csv"
-TEST_CSV = DATASET_PATH / "test.csv"
-
-# In the AG news dataset, no article content is longer than 173 words
-MAX_WORD_LEN = 100
-# Dimension of GloVe word vectors is 300
-EMBEDDING_DIM = 300
-MAX_DATASET_SIZE = 100000
-
 
 def text2embed(df, model, max_len, embed_dim):
     # Embedding dataset is [n_samples, n_words, embedding_dim]
