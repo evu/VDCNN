@@ -17,6 +17,7 @@ class DatasetLoader:
 
     def char2vec(self, text):
         data = np.zeros(self.sequence_max_length)
+        text = text[:self.sequence_max_length]
         for i in range(0, len(text)):
             if i > self.sequence_max_length:
                 return data
